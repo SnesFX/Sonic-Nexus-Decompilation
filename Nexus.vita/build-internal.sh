@@ -32,4 +32,4 @@ installLibTheora
 
 cmake . && \
 make
-rm SonicNexus # this is not ignored by .gitignore
+rm RSDKv3 # this is not ignored by .gitignore
