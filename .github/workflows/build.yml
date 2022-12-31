@@ -15,7 +15,7 @@ jobs:
       - name: Install dependencies
         run: apk add --no-cache make cmake
       - name: SDL2 Normal Download
-        run: sudo apt-get install libsdl2-dev
+        run: apt-get install libsdl2-dev
       - name: Get SDL2-Vita
         run: |
           wget https://github.com/rsn8887/SDL-Vita/releases/download/2.0.8dev_vita_rsn8887_git_20180523/sdl2_vita_20180523.tar.xz
