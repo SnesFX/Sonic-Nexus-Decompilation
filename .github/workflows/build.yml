@@ -17,7 +17,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install build-essential git libsdl2-dev libvorbis-dev libogg-dev libtheora-dev -y
+          sudo apt-get install libtheora-dev libogg-dev libvorbis-dev libsdl2-dev libglew-dev
           ls ./dependencies/all
       - name: Install build requirements
         run: |
