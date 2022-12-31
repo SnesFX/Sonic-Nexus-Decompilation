@@ -1,4 +1,4 @@
-name: Build Sonic Nexus for vita
+name: Build Sonic Nexus for PsVita
 
 on:
   push:
@@ -12,18 +12,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Install something
-        run: apk add --no-cache make cmake
       - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install libtheora-dev libogg-dev libvorbis-dev libsdl2-dev libglew-dev
-          ls ./dependencies/all
-      - name: Install build requirements
-        run: |
-          apt update
-          apt install ninja-build          
-      - name: Get SDL2-Vita
+        run: apk add --no-cache make cmake
+      - name: Get SDL2
         run: |
           wget https://github.com/rsn8887/SDL-Vita/releases/download/2.0.8dev_vita_rsn8887_git_20180523/sdl2_vita_20180523.tar.xz
           mkdir -p dependencies/vita/sdl2
