@@ -12,8 +12,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          submodules: recursive
       - name: Install dependencies
-        run: apk add --no-cache make cmake
+        run: |
+          sudo apt-get update
+          sudo apt-get install libtheora-dev libogg-dev libvorbis-dev libsdl2-dev libglew-dev make cmake
+          ls ./dependencies/all
       - name: Get SDL2-Vita
         run: |
           wget https://github.com/rsn8887/SDL-Vita/releases/download/2.0.8dev_vita_rsn8887_git_20180523/sdl2_vita_20180523.tar.xz
