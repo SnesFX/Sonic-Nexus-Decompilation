@@ -15,7 +15,7 @@ jobs:
       - name: Install dependencies
         run: apk add --no-cache make cmake
       - name: Build Dependencies
-        run: apt install build-essential git libsdl2-dev libvorbis-dev libogg-dev libtheora-dev
+        run: sudo apt install build-essential git libsdl2-dev libvorbis-dev libogg-dev libtheora-dev -y
       - name: Get SDL2-Vita
         run: |
           wget https://github.com/rsn8887/SDL-Vita/releases/download/2.0.8dev_vita_rsn8887_git_20180523/sdl2_vita_20180523.tar.xz
