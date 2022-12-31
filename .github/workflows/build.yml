@@ -17,8 +17,12 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install libtheora-dev libogg-dev libvorbis-dev libsdl2-dev libglew-dev
+          sudo apt-get install build-essential git libsdl2-dev libvorbis-dev libogg-dev libtheora-dev -y
           ls ./dependencies/all
+      - name: Install build requirements
+        run: |
+          apt update
+          apt install ninja-build          
       - name: Get SDL2-Vita
         run: |
           wget https://github.com/rsn8887/SDL-Vita/releases/download/2.0.8dev_vita_rsn8887_git_20180523/sdl2_vita_20180523.tar.xz
