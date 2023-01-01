@@ -60,6 +60,8 @@ add_executable(${PROJECT_NAME}
 
 # Library to link to (drop the -l prefix). This will mostly be stubs.
 target_link_libraries(${PROJECT_NAME}
+-lSceTouch_stub
+-lSceHid_stub
   SDL2
   vita2d
   vorbisfile
