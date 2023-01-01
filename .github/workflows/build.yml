@@ -29,6 +29,7 @@ jobs:
           tar --no-same-owner --no-same-permissions -C $VITASDK/arm-vita-eabi -xJf sdl2_vita_20180523.tar.xz
       - name: Get and compile libtheora
         run: |
+          mkdir -p dependencies/vita
           wget https://downloads.xiph.org/releases/theora/libtheora-1.1.1.tar.bz2 && \
           tar -xf libtheora-1.1.1.tar.bz2 -C dependencies/vita && \
           mv dependencies/vita/libtheora-1.1.1 dependencies/vita/libtheora
