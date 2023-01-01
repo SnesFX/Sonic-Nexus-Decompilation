@@ -32,4 +32,4 @@ installLibTheora
 
 cmake . && \
 make
-rm RSDKv3 # this is not ignored by .gitignore
+rm Nexus # this is not ignored by .gitignore
