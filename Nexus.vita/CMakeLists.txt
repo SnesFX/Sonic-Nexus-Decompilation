@@ -41,6 +41,7 @@ add_compile_definitions(USE_SW_REN)
 # Add any additional include paths here
 include_directories(
   ../dependencies/all/theoraplay
+  ../dependencies/vita/sdl2
   /home/user/vitasdk/arm-vita-eabi/include
 )
 
