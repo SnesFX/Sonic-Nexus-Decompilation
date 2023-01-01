@@ -70,7 +70,19 @@ target_link_libraries(${PROJECT_NAME}
   ogg
   theora
   pthread
+  SceDisplay_stub
+  SceAudio_stub
+  SceCtrl_stub
+  SceSysmodule_stub
+  SceGxm_stub
+  SceCommonDialog_stub
+  SceAppMgr_stub
+  SceTouch_stub
+  SceHid_stub
+  SceAudio_stub
+  SceMotion_stub
   SDL2::SDL2
+  m
 )
 
 ## Create Vita files
