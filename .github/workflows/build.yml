@@ -16,7 +16,7 @@ jobs:
         run: apk add --no-cache make cmake
       - name: Get SDL2
         run: |
-          wget https://github.com/rsn8887/SDL-Vita/releases/download/2.0.8dev_vita_rsn8887_git_20180523/sdl2_vita_20180523.tar.xz
+          wget https://github.com/libsdl-org/SDL/releases/download/release-2.26.1/SDL2-2.26.1.tar.gz
           mkdir -p dependencies/vita/sdl2
           tar -xf sdl2_vita_20180523.tar.xz -C dependencies/vita/sdl2
       - name: Get and compile libtheora
