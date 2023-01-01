@@ -15,7 +15,7 @@ endif()
 
 ## Define project parameters here
 # Name of the project
-project(Nexus)
+project(SonicNexus)
 # This line adds Vita helper macros, must go after project definition in order
 # to build Vita specific artifacts (self/vpk).
 include("${VITASDK}/share/vita.cmake" REQUIRED)
@@ -27,19 +27,20 @@ set(VITA_APP_NAME "Sonic Nexus")
 # unique string of developer and Y = a unique number for this app
 set(VITA_TITLEID  "RSDK00000")
 # Optional version string to show in LiveArea's more info screen
-set(VITA_VERSION  "1.0.0")
+set(VITA_VERSION  "01.00")
 
 ## Flags and includes for building
 # Note that we make sure not to overwrite previous flags
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -O3 -fsigned-char -fno-lto")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 -fsigned-char -fno-lto -fno-rtti -fno-exceptions")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 -fsigned-char -fno-lto -fno-rtti -fexceptions")
 # Optional. You can specify more param.sfo flags this way.
 set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d PARENTAL_LEVEL=1")
+
+add_compile_definitions(USE_SW_REN)
 
 # Add any additional include paths here
 include_directories(
   ../dependencies/all/theoraplay
-  ../dependencies/all/tinyxml2
   /home/user/vitasdk/arm-vita-eabi/include
 )
 
@@ -50,30 +51,10 @@ link_directories(
 )
 
 ## Build and link
-# Add all the files needed to compile here
+file(GLOB_RECURSE SOURCES ../Nexus/*.cpp)
 add_executable(${PROJECT_NAME}
-    ../dependencies/all/theoraplay/theoraplay.c
-   ../Nexus/Animation.cpp 
-   ../Nexus/Audio.cpp 
-   ../Nexus/Collision.cpp 
-   ../Nexus/Debug.cpp 
-   ../Nexus/Drawing.cpp 
-   ../Nexus/Ini.cpp 
-   ../Nexus/Input.cpp 
-   ../Nexus/main.cpp 
-   ../Nexus/Math.cpp 
-   ../Nexus/Object.cpp 
-   ../Nexus/Palette.cpp 
-   ../Nexus/Player.cpp 
-   ../Nexus/Reader.cpp 
-   ../Nexus/RetroEngine.cpp 
-   ../Nexus/Scene.cpp 
-   ../Nexus/Script.cpp 
-   ../Nexus/Sprite.cpp 
-   ../Nexus/String.cpp 
-   ../Nexus/Text.cpp 
-   ../Nexus/Userdata.cpp 
-   ../Nexus/Video.cpp
+  ${SOURCES}
+  ../dependencies/all/theoraplay/theoraplay.c
 )
 
 # Library to link to (drop the -l prefix). This will mostly be stubs.
@@ -84,8 +65,6 @@ target_link_libraries(${PROJECT_NAME}
   vorbis
   ogg
   theora
-  glew
-  tinyxml2
   pthread
   SceDisplay_stub
   SceAudio_stub
