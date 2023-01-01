@@ -22,7 +22,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Install dependencies
-        run: apk add --no-cache make cmake
+        run: apk add --no-cache make cmake git
       - name: Build SDL2
         run: |
           git clone https://github.com/rsn8887/SDL-Vita      
