@@ -18,7 +18,7 @@ jobs:
         run: |
           wget https://github.com/libsdl-org/SDL/releases/download/release-2.26.1/SDL2-2.26.1.tar.gz
           mkdir -p dependencies/vita/sdl2
-          tar -xf sdl2_vita_20180523.tar.xz -C dependencies/vita/sdl2
+          tar -xf SDL2-2.26.1.tar.gz -C dependencies/vita/sdl2
       - name: Get and compile libtheora
         run: |
           wget https://downloads.xiph.org/releases/theora/libtheora-1.1.1.tar.bz2 && \
