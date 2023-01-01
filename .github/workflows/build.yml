@@ -5,6 +5,9 @@ on:
     branches:
       - psvita
 
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
 jobs:
   psvita:
     runs-on: ubuntu-latest
