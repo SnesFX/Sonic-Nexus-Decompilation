@@ -22,7 +22,7 @@ bld/
 bin/
 [Bb]in/
 [Oo]bj/
-
+objects/
 #safety
 data.bin
 
