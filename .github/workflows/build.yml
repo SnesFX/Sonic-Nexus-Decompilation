@@ -30,6 +30,7 @@ jobs:
           git checkout master
           make -f Makefile.vita
           sudo -E make -f Makefile.vita install
+          cp -a /SDL-Vita/. /dependencies/vita/SDL2
       - name: Get and compile libtheora
         run: |
           mkdir -p dependencies/vita
