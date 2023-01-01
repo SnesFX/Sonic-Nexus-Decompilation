@@ -1,5 +1,5 @@
 ## This file is a quick tutorial on writing CMakeLists for targeting the Vita
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.2)
 
 ## This includes the Vita toolchain, must go before project definition
 # It is a convenience so you do not have to type
@@ -20,6 +20,8 @@ project(SonicNexus)
 # to build Vita specific artifacts (self/vpk).
 include("${VITASDK}/share/vita.cmake" REQUIRED)
 
+find_package(SDL2 REQUIRED)
+
 ## Configuration options for this app
 # Display name (under bubble in LiveArea)
 set(VITA_APP_NAME "Sonic Nexus")
@@ -32,7 +34,7 @@ set(VITA_VERSION  "01.00")
 ## Flags and includes for building
 # Note that we make sure not to overwrite previous flags
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -O3 -fsigned-char -fno-lto")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 -fsigned-char -fno-lto -fno-rtti -fexceptions")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O3 -fsigned-char -fno-lto -fno-rtti -fexceptions")
 # Optional. You can specify more param.sfo flags this way.
 set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d PARENTAL_LEVEL=1")
 
@@ -62,25 +64,13 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
 -lSceTouch_stub
 -lSceHid_stub
-  SDL2
   vita2d
   vorbisfile
   vorbis
   ogg
   theora
   pthread
-  SceDisplay_stub
-  SceAudio_stub
-  SceCtrl_stub
-  SceSysmodule_stub
-  SceGxm_stub
-  SceCommonDialog_stub
-  SceAppMgr_stub
-  SceTouch_stub
-  SceHid_stub
-  SceAudio_stub
-  SceMotion_stub
-  m
+  SDL2::SDL2
 )
 
 ## Create Vita files
