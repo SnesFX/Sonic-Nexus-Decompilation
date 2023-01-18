@@ -1,4 +1,4 @@
-name: Build Sonic Nexus for multiple platforms
+name: Build Sonic Nexus
 
 on:
   push:
