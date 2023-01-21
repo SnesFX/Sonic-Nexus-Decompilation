@@ -17,7 +17,7 @@ on:
 jobs:
   psvita:
     runs-on: ubuntu-latest
-    container: vitasdk/vitasdk:latest
+    container: gnuton/vitasdk-docker:latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
