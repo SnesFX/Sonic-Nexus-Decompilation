@@ -22,15 +22,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Install dependencies
-        run: sudo apt-get install make git-core cmake python
-      - name: Build SDL2
-        run: |
-          git clone https://github.com/Northfear/SDL.git    
-          cd SDL
-          git checkout vitagl
-          cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake -DCMAKE_BUILD_TYPE=Release -DVIDEO_VITA_VGL=ON
-          cmake --build build -- -j$(nproc)
-          cmake --install build         
+        run: sudo apt-get install make git-core cmake python  
       - name: Get and compile libtheora
         run: |
           mkdir -p dependencies/vita
