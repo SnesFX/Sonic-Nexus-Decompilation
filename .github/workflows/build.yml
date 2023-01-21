@@ -22,10 +22,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Install dependencies
-        run: apk add --no-cache make cmake git pkgconf openssh-client
+        run: apk add --no-cache make cmake git pkgconf
       - name: Build SDL2
         run: |
-          git clone git@github.com:Northfear/SDL.git     
+          git clone https://github.com/Northfear/SDL.git    
           cd SDL
           git checkout vitagl
           cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake -DCMAKE_BUILD_TYPE=Release -DVIDEO_VITA_VGL=ON
