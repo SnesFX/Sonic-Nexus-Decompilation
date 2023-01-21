@@ -25,11 +25,12 @@ jobs:
         run: apk add --no-cache make cmake git
       - name: Build SDL2
         run: |
-          git clone https://github.com/rsn8887/SDL-Vita      
-          cd SDL-Vita
+          git clone https://github.com/Northfear/SDL     
+          cd SDL
           git checkout master
-          make -f Makefile.vita
-          sudo -E make -f Makefile.vita install
+         cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake -DCMAKE_BUILD_TYPE=Release -DVIDEO_VITA_VGL=ON
+         cmake --build build -- -j$(nproc)
+         cmake --install build
       - name: Get and compile libtheora
         run: |
           mkdir -p dependencies/vita
