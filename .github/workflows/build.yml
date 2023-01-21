@@ -22,7 +22,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Install dependencies
-        run: apk add --no-cache make cmake git
+        run: apk add --no-cache make cmake git pkgconf
       - name: Build SDL2
         run: |
           git clone https://github.com/Northfear/SDL     
