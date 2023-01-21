@@ -22,7 +22,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Install dependencies
-        run: sudo apt-get install make git-core cmake python  
+        run: sudo apt-get install make git-core cmake python build-essential libsdl2-dev libvorbis-dev libogg-dev libtheora-dev 
       - name: Get and compile libtheora
         run: |
           mkdir -p dependencies/vita
