@@ -1,6 +1,12 @@
 #ifndef RETROENGINE_H
 #define RETROENGINE_H
 
+// Vita Shiz
+#ifdef __vita__
+#include <thread>
+#include <psp2/kernel/clib.h>
+#endif
+
 // Disables POSIX use c++ name blah blah stuff
 #pragma warning(disable : 4996)
 
@@ -39,6 +45,7 @@ typedef unsigned int uint;
 #define RETRO_WP7      (6)
 // Custom Platforms start here
 #define RETRO_UWP  (7)
+#define RETRO_VITA  (8)
 
 // Platform types (Game manages platform-specific code such as HUD position using this rather than the above)
 #define RETRO_STANDARD (0)
@@ -83,7 +90,21 @@ typedef unsigned int uint;
 #define RETRO_USING_TOUCH
 #define DEFAULT_SCREEN_XSIZE 320
 #define DEFAULT_FULLSCREEN   false
+#elif defined __VITA__
+#define RETRO_PLATFORM   (RETRO_VITA)
+#define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
+
+#elif RETRO_PLATFORM == RETRO_VITA
+
+#undef RETRO_RENDERDEVICE_SDL2
+#define RETRO_RENDERDEVICE_SDL2 (1)
+
+#undef RETRO_AUDIODEVICE_SDL2
+#define RETRO_AUDIODEVICE_SDL2 (1)
+
+#undef RETRO_INPUTDEVICE_SDL2
+#define RETRO_INPUTDEVICE_SDL2 (1)
 
 #if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_iOS                        \
     || RETRO_PLATFORM == RETRO_UWP
@@ -124,7 +145,7 @@ enum RetroBytecodeFormat {
 #include <Vorbis/vorbisfile.h>
 
 #include "cocoaHelpers.hpp"
-#elif RETRO_PLATFORM == RETRO_iOS
+#elif RETRO_PLATFORM == RETRO_iOS || RETRO_PLATFORM == RETRO_VITA 
 #include <SDL2/SDL.h>
 #include <vorbis/vorbisfile.h>
 
