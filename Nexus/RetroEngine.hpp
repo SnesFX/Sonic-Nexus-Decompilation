@@ -82,8 +82,7 @@ typedef unsigned int uint;
 #define DEFAULT_SCREEN_XSIZE 480
 #define DEFAULT_FULLSCREEN   true
 #define RETRO_DEFAULTSCALINGMODE 
-
-#if RETRO_PLATFORM == RETRO_UWP
+#elif RETRO_PLATFORM == RETRO_UWP
 #define BASE_PATH            ""
 #define DEFAULT_SCREEN_XSIZE 320
 #define DEFAULT_FULLSCREEN   false
