@@ -70,9 +70,18 @@ typedef unsigned int uint;
 #else
 #error "Unknown Apple platform"
 #endif
+#elif defined __vita__
+#define RETRO_PLATFORM (RETRO_VITA)
+#include "std_filesystem.h"
 #else
 #define RETRO_PLATFORM (RETRO_WIN) // Default
 #endif
+
+#if RETRO_PLATFORM == RETRO_VITA
+#define BASE_PATH            "ux0:data/SonicNexus/"
+#define DEFAULT_SCREEN_XSIZE 480
+#define DEFAULT_FULLSCREEN   true
+#define RETRO_DEFAULTSCALINGMODE 
 
 #if RETRO_PLATFORM == RETRO_UWP
 #define BASE_PATH            ""
