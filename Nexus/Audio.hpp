@@ -24,6 +24,7 @@ struct TrackInfo {
 struct MusicPlaybackInfo {
     OggVorbis_File vorbisFile;
     int vorbBitstream;
+    int loopPoint;
 #if RETRO_USING_SDL1
     SDL_AudioSpec spec;
 #endif
