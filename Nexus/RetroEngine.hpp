@@ -38,8 +38,8 @@ typedef unsigned int uint;
 #define RETRO_ANDROID  (5)
 #define RETRO_WP7      (6)
 // Custom Platforms start here
-#define RETRO_UWP  (7)
-#define RETRO_VITA (8)
+#define RETRO_VITA  (7)
+#define RETRO_UWP  (8)
 
 // Platform types (Game manages platform-specific code such as HUD position using this rather than the above)
 #define RETRO_STANDARD (0)
@@ -70,18 +70,17 @@ typedef unsigned int uint;
 #else
 #error "Unknown Apple platform"
 #endif
-#if defined __vita__
+#elif defined __vita__
 #define RETRO_PLATFORM (RETRO_VITA)
-#define RETRO_PLATTYPE (RETRO_STANDARD)
 #else
 #define RETRO_PLATFORM (RETRO_WIN) // Default
 #endif
 
 #if RETRO_PLATFORM == RETRO_VITA
-#define BASE_PATH            "ux0:data/SonicNexus/"
+#define BASE_PATH            "ux0:data/Nexus/"
 #define DEFAULT_SCREEN_XSIZE 480
 #define DEFAULT_FULLSCREEN   true
-#define RETRO_DEFAULTSCALINGMODE 
+#define RETRO_DEFAULTSCALINGMODE 1 // use integer scaling
 #elif RETRO_PLATFORM == RETRO_UWP
 #define BASE_PATH            ""
 #define DEFAULT_SCREEN_XSIZE 320
@@ -94,7 +93,7 @@ typedef unsigned int uint;
 #define DEFAULT_FULLSCREEN   false
 #endif
 
-#if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_iOS                        \
+#if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_iOS || RETRO_PLATFORM == RETRO_VITA                           \
     || RETRO_PLATFORM == RETRO_UWP
 #define RETRO_USING_SDL1 (0)
 #define RETRO_USING_SDL2 (1)
@@ -138,6 +137,11 @@ enum RetroBytecodeFormat {
 #include <vorbis/vorbisfile.h>
 
 #include "cocoaHelpers.hpp"
+#elif RETRO_PLATFORM == RETRO_VITA
+#include <SDL2/SDL.h>
+#include <vorbis/vorbisfile.h>
+#include <theora/theora.h>
+#include <theoraplay.h>
 #endif
 
 extern bool usingCWD;
