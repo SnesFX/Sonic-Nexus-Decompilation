@@ -70,9 +70,9 @@ typedef unsigned int uint;
 #else
 #error "Unknown Apple platform"
 #endif
-#elif defined __vita__
+#if defined __vita__
 #define RETRO_PLATFORM (RETRO_VITA)
-#include "std_filesystem.h"
+#define RETRO_PLATTYPE (RETRO_STANDARD)
 #else
 #define RETRO_PLATFORM (RETRO_WIN) // Default
 #endif
