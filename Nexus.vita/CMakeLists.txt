@@ -29,7 +29,7 @@ set(VITA_APP_NAME "Sonic Nexus")
 # unique string of developer and Y = a unique number for this app
 set(VITA_TITLEID  "RSDK00000")
 # Optional version string to show in LiveArea's more info screen
-set(VITA_VERSION  "01.10")
+set(VITA_VERSION  "02.00")
 
 ## Flags and includes for building
 # Note that we make sure not to overwrite previous flags
