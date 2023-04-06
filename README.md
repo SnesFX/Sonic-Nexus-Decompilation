@@ -28,6 +28,13 @@ Without assets from the game, this decompilation will not run. You can download 
   * The `CXXFLAGS` option can be removed if you do not want optimizations.
   * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9.)
 
+## Android
+* Clone the repo, then follow the instructions in the [dependencies readme for Android](./dependencies/android/dependencies.txt).
+* Ensure the symbolic links in `android/app/jni` are correct. If not, fix them with the following on Windows:
+  * `mklink /D src ..\..\..`
+  * `mklink /D SDL ..\..\..\dependencies\android\SDL`
+* Open `android/` in Android Studio, install the NDK and everything else that it asks for, and build.
+
 ## Unofficial Branches
 Follow the installation instructions in the readme of each branch.
 * For the **Nintendo Switch**, go to [LittlePlanetCD's fork](https://github.com/LittlePlanetCD/Sonic-Nexus-Switch).
