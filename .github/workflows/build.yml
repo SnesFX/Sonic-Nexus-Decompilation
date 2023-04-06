@@ -3,7 +3,7 @@ name: Build Sonic Nexus for multiple platforms
 on:
   push:
     branches:
-      - main
+      - android
       - continuous-delivery
 
   # Allows you to run this workflow manually from the Actions tab
