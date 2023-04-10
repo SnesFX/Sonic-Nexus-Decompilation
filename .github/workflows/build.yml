@@ -26,9 +26,4 @@ jobs:
         run : |
           apt install build-essential git libsdl2-dev libvorbis-dev libogg-dev libtheora-dev -y   
       - name: Build Sonic Nexus for the Nintendo 3DS
-        run: make -f Makefile.3ds             
-      - name: Publish Artifact
-        uses: actions/upload-artifact@v2.2.4
-        with:
-          name: 3DSX Build
-          path: 'build/build_3ds'        
+        run: make -f Makefile.3ds                   
