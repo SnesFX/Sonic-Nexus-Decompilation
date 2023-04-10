@@ -84,6 +84,7 @@ byte tilesetGFXData[TILESET_SIZE];
 
 void ProcessStage(void)
 {
+    int updateMax = 0; 
     switch (stageMode) {
         case STAGEMODE_LOAD: // Startup
             fadeMode = 0;
@@ -117,7 +118,7 @@ void ProcessStage(void)
             stageMode         = STAGEMODE_NORMAL;
             ResetBackgroundSettings();
             LoadStageFiles();
-            //fallthrough cuz it fixes a bug looool
+            break;
         case STAGEMODE_NORMAL:
             if (fadeMode > 0)
                 fadeMode--;
@@ -143,8 +144,18 @@ void ProcessStage(void)
                 stageMilliseconds = 100 * frameCounter / Engine.refreshRate;
             }
 
+            updateMax = 1;
+            /*updateMax = Engine.renderFrameIndex;
+            if (Engine.refreshRate >= Engine.targetRefreshRate) {
+                updateMax = 0;
+                if (Engine.frameCount % Engine.skipFrameIndex < Engine.renderFrameIndex)
+                    updateMax = 1;
+            }*/
+
             // Update
-            ProcessObjects();
+            for (int i = 0; i < updateMax; ++i) {
+                ProcessObjects();
+            }
 
             if (objectEntityList[0].type == OBJ_TYPE_PLAYER) {
                 if (cameraEnabled) {
@@ -184,8 +195,18 @@ void ProcessStage(void)
                     stageMilliseconds = 100 * frameCounter / Engine.refreshRate;
                 }
 
+                updateMax = 1;
+                /*updateMax = Engine.renderFrameIndex;
+                if (Engine.refreshRate >= Engine.targetRefreshRate) {
+                    updateMax = 0;
+                    if (Engine.frameCount % Engine.skipFrameIndex < Engine.renderFrameIndex)
+                        updateMax = 1;
+                }*/
+
                 // Update
-                ProcessObjects();
+                for (int i = 0; i < updateMax; ++i) {
+                    ProcessObjects();
+                }
 
                 if (objectEntityList[0].type == OBJ_TYPE_PLAYER) {
                     if (cameraEnabled) {
@@ -199,7 +220,6 @@ void ProcessStage(void)
                         SetPlayerLockedScreenPosition(&playerList[0]);
                     }
                 }
-                DrawStageGFX();
             }
 
             if (pauseEnabled && keyPress.start) {
@@ -363,24 +383,24 @@ void LoadActLayout()
         FileRead(activeTileLayers, 4);
         FileRead(&tLayerMidPoint, 1);
 
-        FileRead(&stageLayouts[0].xsize, 1);
-        FileRead(&stageLayouts[0].ysize, 1);
+        FileRead(&stageLayouts[0].width, 1);
+        FileRead(&stageLayouts[0].height, 1);
         xBoundary1    = 0;
         newXBoundary1 = 0;
         yBoundary1    = 0;
         newYBoundary1 = 0;
-        xBoundary2    = stageLayouts[0].xsize << 7;
-        yBoundary2    = stageLayouts[0].ysize << 7;
+        xBoundary2    = stageLayouts[0].width << 7;
+        yBoundary2    = stageLayouts[0].height << 7;
         waterLevel    = yBoundary2 + 128;
-        newXBoundary2 = stageLayouts[0].xsize << 7;
-        newYBoundary2 = stageLayouts[0].ysize << 7;
+        newXBoundary2 = stageLayouts[0].width << 7;
+        newYBoundary2 = stageLayouts[0].height << 7;
 
         for (int i = 0; i < 0x10000; ++i) stageLayouts[0].tiles[i] = 0;
 
         byte fileBuffer = 0;
-        for (int y = 0; y < stageLayouts[0].ysize; ++y) {
+        for (int y = 0; y < stageLayouts[0].height; ++y) {
             ushort *tiles = &stageLayouts[0].tiles[(y * 0x100)];
-            for (int x = 0; x < stageLayouts[0].xsize; ++x) {
+            for (int x = 0; x < stageLayouts[0].width; ++x) {
                 FileRead(&fileBuffer, 1);
                 tiles[x] = fileBuffer << 8;
                 FileRead(&fileBuffer, 1);
@@ -487,9 +507,9 @@ void LoadStageBackground()
 
         for (int i = 1; i < layerCount + 1; ++i) {
             FileRead(&fileBuffer, 1);
-            stageLayouts[i].xsize = fileBuffer;
+            stageLayouts[i].width = fileBuffer;
             FileRead(&fileBuffer, 1);
-            stageLayouts[i].ysize = fileBuffer;
+            stageLayouts[i].height = fileBuffer;
             FileRead(&fileBuffer, 1);
             stageLayouts[i].type = fileBuffer;
             FileRead(&fileBuffer, 1);
@@ -525,9 +545,9 @@ void LoadStageBackground()
             }
 
             // Read Layout
-            for (int y = 0; y < stageLayouts[i].ysize; ++y) {
+            for (int y = 0; y < stageLayouts[i].height; ++y) {
                 ushort *chunks = &stageLayouts[i].tiles[y * 0x100];
-                for (int x = 0; x < stageLayouts[i].xsize; ++x) {
+                for (int x = 0; x < stageLayouts[i].width; ++x) {
                     FileRead(&fileBuffer, 1);
                     *chunks += fileBuffer;
                     ++chunks;
@@ -751,8 +771,8 @@ void LoadStageGIFFile(int stageID)
         height += (fileBuffer << 8);
 
         FileRead(&fileBuffer, 1); // Palette Size
-        int has_pallete = (fileBuffer & 0x80) >> 7;
-        int colors = ((fileBuffer & 0x70) >> 4) + 1;
+        //int has_pallete = (fileBuffer & 0x80) >> 7;
+        //int colors = ((fileBuffer & 0x70) >> 4) + 1;
         int palette_size = (fileBuffer & 0x7) + 1;
         if (palette_size > 0)
             palette_size = 1 << palette_size;

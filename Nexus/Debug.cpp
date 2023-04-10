@@ -1,9 +1,5 @@
 #include "RetroEngine.hpp"
 
-#if RETRO_USE_MOD_LOADER
-int modOffset = 0;
-#endif
-
 void InitSystemMenu()
 {
     xScrollOffset = 0;
@@ -13,16 +9,15 @@ void InitSystemMenu()
     ReleaseStageSfx();
     fadeMode = 0;
 
-    if (Engine.usingBinFile
-        || ((Engine.startList_Game != 0xFF && Engine.startList_Game) || (Engine.startStage_Game != 0xFF && Engine.startStage_Game))) {
+    if (Engine.usingBinFile) {
         ClearGraphicsData();
         for (int i = 0; i < PLAYER_COUNT; ++i) playerScriptList[i].scriptPath[0] = 0;
         LoadPalette("Data/Palettes/MasterPalette.act", 0, 256);
         LoadPlayerFromList(0, 0);
-        Engine.gameMode = ENGINE_MAINGAME;
-        stageMode       = STAGEMODE_LOAD;
-        activeStageList = Engine.startList_Game == 0xFF ? 0 : Engine.startList_Game;
-        stageListPosition = Engine.startStage_Game == 0xFF ? 0 : Engine.startStage_Game;
+        activeStageList   = 0;
+        stageMode         = 0;
+        Engine.gameMode   = ENGINE_MAINGAME;
+        stageListPosition = 0;
     }
     else {
         Engine.gameMode = ENGINE_SYSMENU;
@@ -50,8 +45,6 @@ void InitSystemMenu()
         gameMenu[0].selectionCount = 2;
         gameMenu[0].selection1     = 0;
         gameMenu[0].selection2     = 7;
-
-        ProcessSystemMenu();
     }
 }
 void ProcessSystemMenu()
@@ -97,8 +90,7 @@ void ProcessSystemMenu()
                     SetupTextMenu(&gameMenu[1], 0);
 
                     char buffer[0x100];
-                    int visible = modList.size() > 18 ? 18 : modList.size();
-                    for (int m = 0; m < visible; ++m) {
+                    for (int m = 0; m < modCount; ++m) {
                         StrCopy(buffer, modList[m].name.c_str());
                         StrAdd(buffer, ": ");
                         StrAdd(buffer, modList[m].active ? "  Active" : "Inactive");
@@ -106,7 +98,6 @@ void ProcessSystemMenu()
                         AddTextMenuEntry(&gameMenu[1], buffer);
                     }
 
-                    modOffset                  = 0;
                     gameMenu[1].alignment      = 1;
                     gameMenu[1].selectionCount = 3;
                     gameMenu[1].selection1     = 0;
@@ -120,7 +111,7 @@ void ProcessSystemMenu()
                     Engine.running = false;
                 }
             }
-            else if (keyPress.B && Engine.usingBinFile) {
+            else if (keyPress.B) {
                 ClearGraphicsData();
                 ClearAnimationData();
                 LoadPalette("Data/Palettes/MasterPalette.act", 0, 256);
@@ -254,9 +245,9 @@ void ProcessSystemMenu()
         }
         case DEVMENU_STAGESEL: // Selecting Stage
         {
-            if (keyPress.down)
+            if (keyPress.down == 1)
                 ++gameMenu[1].selection1;
-            if (keyPress.up)
+            if (keyPress.up == 1)
                 --gameMenu[1].selection1;
             if (gameMenu[1].selection1 == gameMenu[1].rowCount)
                 gameMenu[1].selection1 = 0;
@@ -291,59 +282,23 @@ void ProcessSystemMenu()
             }
             break;
         }
-#if RETRO_USE_MOD_LOADER
         case DEVMENU_MODMENU: // Mod Menu
         {
-            if (keyPress.down)
+            if (keyPress.down == 1)
                 ++gameMenu[1].selection1;
-            if (keyPress.up)
+            if (keyPress.up == 1)
                 --gameMenu[1].selection1;
-
-            if (keyPress.left || keyPress.right) {
-                int offset = modOffset;
-                if (keyPress.left && modOffset - 18 >= 0) {
-                    modOffset -= 18;
-                }
-                else if (keyPress.right && modOffset + 18 < modList.size()) {
-                    modOffset += 18;
-                }
-
-                if (offset != modOffset) {
-                    SetupTextMenu(&gameMenu[0], 0);
-                    AddTextMenuEntry(&gameMenu[0], "MOD LIST");
-                    SetupTextMenu(&gameMenu[1], 0);
-
-                    char buffer[0x100];
-                    int visible = (modList.size() - modOffset) > 18 ? (modOffset + 18) : modList.size();
-                    for (int m = modOffset; m < visible; ++m) {
-                        StrCopy(buffer, modList[m].name.c_str());
-                        StrAdd(buffer, ": ");
-                        StrAdd(buffer, modList[m].active ? "  Active" : "Inactive");
-                        for (int c = 0; c < StrLength(buffer); ++c) buffer[c] = toupper(buffer[c]);
-                        AddTextMenuEntry(&gameMenu[1], buffer);
-                    }
-
-                    gameMenu[1].alignment      = 1;
-                    gameMenu[1].selectionCount = 3;
-                    gameMenu[1].selection1     = 0;
-
-                    gameMenu[0].alignment      = 2;
-                    gameMenu[0].selectionCount = 1;
-                    stageMode                  = DEVMENU_MODMENU;
-                }
-            }
-
-            if (gameMenu[1].selection1 >= gameMenu[1].rowCount)
+            if (gameMenu[1].selection1 == gameMenu[1].rowCount)
                 gameMenu[1].selection1 = 0;
             if (gameMenu[1].selection1 < 0)
                 gameMenu[1].selection1 = gameMenu[1].rowCount - 1;
 
             char buffer[0x100];
-            if (keyPress.A || keyPress.start /*|| keyPress.left || keyPress.right*/) {
-                modList[modOffset + gameMenu[1].selection1].active ^= 1; 
-                StrCopy(buffer, modList[modOffset + gameMenu[1].selection1].name.c_str());
+            if (keyPress.A || keyPress.start || keyPress.left || keyPress.right) {
+                modList[gameMenu[1].selection1].active ^= 1; 
+                StrCopy(buffer, modList[gameMenu[1].selection1].name.c_str());
                 StrAdd(buffer, ": ");
-                StrAdd(buffer, (modList[modOffset + gameMenu[1].selection1].active ? "  Active" : "Inactive"));
+                StrAdd(buffer, (modList[gameMenu[1].selection1].active ? "  Active" : "Inactive"));
                 for (int c = 0; c < StrLength(buffer); ++c) buffer[c] = toupper(buffer[c]);
                 EditTextMenuEntry(&gameMenu[1], buffer, gameMenu[1].selection1);
             }
@@ -360,8 +315,10 @@ void ProcessSystemMenu()
                 AddTextMenuEntry(&gameMenu[0], " ");
                 AddTextMenuEntry(&gameMenu[0], "1 PLAYER");
                 AddTextMenuEntry(&gameMenu[0], " ");
+#if RETRO_USE_MOD_LOADER
                 AddTextMenuEntry(&gameMenu[0], "MODS");
                 AddTextMenuEntry(&gameMenu[0], " ");
+#endif
                 AddTextMenuEntry(&gameMenu[0], "QUIT");
                 stageMode                  = DEVMENU_MAIN;
                 gameMenu[0].alignment      = 2;
@@ -371,13 +328,6 @@ void ProcessSystemMenu()
 
                 //Reload entire engine
                 Engine.LoadGameConfig("Data/Game/GameConfig.bin");
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
-                if (Engine.window) {
-                    char gameTitle[0x40];
-                    sprintf(gameTitle, "%s%s", Engine.gameWindowText, Engine.usingBinFile ? "" : " (Using Data Folder)");
-                    SDL_SetWindowTitle(Engine.window, gameTitle);
-                }
-#endif
 
                 ReleaseGlobalSfx();
                 LoadGlobalSfx();
@@ -389,7 +339,6 @@ void ProcessSystemMenu()
             DrawTextMenu(&gameMenu[1], SCREEN_CENTERX + 100, 64);
             break;
         }
-#endif
         default: break;
     }
 }

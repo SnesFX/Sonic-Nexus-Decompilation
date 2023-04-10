@@ -8,6 +8,8 @@
 #define HITBOX_COUNT (0x20)
 #define HITBOX_DIR_COUNT (0x8)
 
+enum AnimrotationFlags { ROTFLAG_NONE, ROTFLAG_FULL, ROTFLAG_45DEG, ROTFLAG_STATICFRAMES };
+
 struct SpriteFrame {
     int sprX;
     int sprY;
@@ -23,6 +25,7 @@ struct SpriteAnimation {
     byte frameCount;
     byte speed;
     byte loopPoint;
+    byte rotationFlag;
     SpriteFrame* frames;
 };
 

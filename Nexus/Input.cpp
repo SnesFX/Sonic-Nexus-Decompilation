@@ -196,15 +196,18 @@ bool getControllerButton(byte buttonID)
 
 void controllerInit(byte controllerID)
 {
+#if RETRO_USING_SDL2
     SDL_GameController *controller = SDL_GameControllerOpen(controllerID);
     if (controller) {
         controllers.push_back(controller);
         inputType = 1;
     }
+#endif
 }
 
 void controllerClose(byte controllerID)
 {
+#if RETRO_USING_SDL2
     SDL_GameController *controller = SDL_GameControllerFromInstanceID(controllerID);
     if (controller) {
         SDL_GameControllerClose(controller);
@@ -214,6 +217,7 @@ void controllerClose(byte controllerID)
     if (controllers.empty()) {
         inputType = 0;
     }
+#endif
 }
 
 void ProcessInput()
@@ -354,12 +358,41 @@ void ProcessInput()
     if (!flag && inputType == 1) {
         inputDevice[INPUT_ANY].setReleased();
     }
+
+#elif RETRO_PLATFORM == RETRO_3DS
+    hidScanInput();
 #endif
 }
 #endif
 
+void CheckAgainstP(InputData* input, byte flags, u32 p) {
+    // hard-coded lol
+    if (flags & 0x1)
+        input->up = p & KEY_UP;
+    if (flags & 0x2)
+        input->down = p & KEY_DOWN;
+    if (flags & 0x4)
+        input->left = p & KEY_LEFT;
+    if (flags & 0x8)
+        input->right = p & KEY_RIGHT;
+    if (flags & 0x10)
+        input->A = p & KEY_Y;
+    if (flags & 0x20)
+        input->B = p & KEY_B;
+    if (flags & 0x40)
+        input->C = p & KEY_A;
+    if (flags & 0x80)
+        input->start = p & KEY_START;
+    if (flags & 0x80)
+        anyPress = p;
+}
+
 void CheckKeyPress(InputData *input, byte flags)
 {
+#if RETRO_PLATFORM == RETRO_3DS
+    u32 p = hidKeysDown();
+    CheckAgainstP(input, flags, p);
+#else
     if (flags & 0x1)
         input->up = inputDevice[INPUT_UP].press;
     if (flags & 0x2)
@@ -378,10 +411,15 @@ void CheckKeyPress(InputData *input, byte flags)
         input->start = inputDevice[INPUT_START].press;
     if (flags & 0x80)
         anyPress = inputDevice[INPUT_ANY].press;
+#endif
 }
 
 void CheckKeyDown(InputData *input, byte flags)
 {
+#if RETRO_PLATFORM == RETRO_3DS
+    u32 p = hidKeysHeld();
+    CheckAgainstP(input, flags, p);
+#else
     if (flags & 0x1)
         input->up = inputDevice[INPUT_UP].hold;
     if (flags & 0x2)
@@ -398,4 +436,5 @@ void CheckKeyDown(InputData *input, byte flags)
         input->C = inputDevice[INPUT_BUTTONC].hold;
     if (flags & 0x80)
         input->start = inputDevice[INPUT_START].hold;
+#endif
 }

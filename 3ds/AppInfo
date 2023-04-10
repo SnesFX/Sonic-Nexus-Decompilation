@@ -1,0 +1,5 @@
+APP_TITLE = Sonic Nexus
+APP_DESCRIPTION = A port of Sonic Nexus to the 3DS!
+APP_AUTHOR = Rubberduckycooly, port by SnesFX/TyDev.
+APP_PRODUCT_CODE = SnesFXSNexus
+APP_UNIQUE_ID = 0x2716

@@ -90,8 +90,8 @@ struct TileLayer {
     int YPos;
     int ZPos;
     byte type;
-    byte xsize;
-    byte ysize;
+    byte width;
+    byte height;
 };
 
 struct LineScroll {

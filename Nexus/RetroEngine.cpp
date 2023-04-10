@@ -45,86 +45,26 @@ bool processEvents()
                 break;
             case SDL_CONTROLLERDEVICEADDED: controllerInit(Engine.sdlEvents.cdevice.which); break;
             case SDL_CONTROLLERDEVICEREMOVED: controllerClose(Engine.sdlEvents.cdevice.which); break;
+            case SDL_WINDOWEVENT_CLOSE:
+                if (Engine.window) {
+                    SDL_DestroyWindow(Engine.window);
+                    Engine.window = NULL;
+                }
+                Engine.gameMode = ENGINE_EXITGAME;
+                return false;
             case SDL_APP_TERMINATING: Engine.gameMode = ENGINE_EXITGAME; break;
 #endif
             case SDL_KEYDOWN:
                 switch (Engine.sdlEvents.key.keysym.sym) {
                     default: break;
-
                     case SDLK_ESCAPE:
-                        if (Engine.devMenu) {
-#if RETRO_USE_MOD_LOADER
-                            // hacky patch because people can escape
-                            if (Engine.gameMode == ENGINE_SYSMENU && stageMode == DEVMENU_MODMENU) {
-                                // Reload entire engine
-                                Engine.LoadGameConfig("Data/Game/GameConfig.bin");
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
-                                if (Engine.window) {
-                                    char gameTitle[0x40];
-                                    sprintf(gameTitle, "%s%s", Engine.gameWindowText, Engine.usingBinFile ? "" : " (Using Data Folder)");
-                                    SDL_SetWindowTitle(Engine.window, gameTitle);
-                                }
-#endif
-
-                                ReleaseStageSfx();
-                                ReleaseGlobalSfx();
-                                LoadGlobalSfx();
-
-                                saveMods();
-                            }
-#endif
-
+                        if (Engine.devMenu)
                             Engine.gameMode = ENGINE_INITSYSMENU;
-                        }
                         else {
                             Engine.gameMode = ENGINE_EXITGAME;
                             return false;
                         }
                         break;
-
-                    case SDLK_F1:
-                        if (Engine.devMenu) {
-                            activeStageList   = 0;
-                            stageListPosition = 0;
-                            stageMode         = STAGEMODE_LOAD;
-                            Engine.gameMode   = ENGINE_MAINGAME;
-                        }
-                        else {
-                            Engine.running = false;
-                        }
-                        break;
-
-                    case SDLK_F2:
-                        if (Engine.devMenu) {
-                            stageListPosition--;
-                            while (stageListPosition < 0) {
-                                activeStageList--;
-
-                                if (activeStageList < 0)
-                                    activeStageList = 3;
-                                stageListPosition = stageListCount[activeStageList] - 1;
-                            }
-                            stageMode       = STAGEMODE_LOAD;
-                            Engine.gameMode = ENGINE_MAINGAME;
-                        }
-                        break;
-
-                    case SDLK_F3:
-                        if (Engine.devMenu) {
-                            stageListPosition++;
-                            while (stageListPosition >= stageListCount[activeStageList]) {
-                                activeStageList++;
-
-                                stageListPosition = 0;
-
-                                if (activeStageList >= 4)
-                                    activeStageList = 0;
-                            }
-                            stageMode       = STAGEMODE_LOAD;
-                            Engine.gameMode = ENGINE_MAINGAME;
-                        }
-                        break;
-
                     case SDLK_F4:
                         Engine.isFullScreen ^= 1;
                         if (Engine.isFullScreen) {
@@ -154,25 +94,57 @@ bool processEvents()
 #endif
                         }
                         break;
-
-                    case SDLK_F5:
+                    case SDLK_F1:
                         if (Engine.devMenu) {
-                            currentStageFolder[0] = 0; // reload all assets & scripts
-                            stageMode             = STAGEMODE_LOAD;
+                            activeStageList   = 0;
+                            stageListPosition = 0;
+                            stageMode         = STAGEMODE_LOAD;
+                            Engine.gameMode   = ENGINE_MAINGAME;
+                        }
+                        else {
+                            Engine.running = false;
                         }
                         break;
+                    case SDLK_F2:
+                        if (Engine.devMenu) {
+                            stageListPosition--;
+                            if (stageListPosition < 0) {
+                                activeStageList--;
 
+                                if (activeStageList < 0) {
+                                    activeStageList = 3;
+                                }
+                                stageListPosition = stageListCount[activeStageList] - 1;
+                            }
+                            stageMode       = STAGEMODE_LOAD;
+                            Engine.gameMode = ENGINE_MAINGAME;
+                        }
+                        break;
+                    case SDLK_F3:
+                        if (Engine.devMenu) {
+                            stageListPosition++;
+                            if (stageListPosition >= stageListCount[activeStageList]) {
+                                activeStageList++;
+
+                                stageListPosition = 0;
+
+                                if (activeStageList >= 4) {
+                                    activeStageList = 0;
+                                }
+                            }
+                            stageMode       = STAGEMODE_LOAD;
+                            Engine.gameMode = ENGINE_MAINGAME;
+                        }
+                        break;
 #if RETRO_PLATFORM == RETRO_OSX
                     case SDLK_TAB:
                         if (Engine.devMenu)
                             Engine.gameSpeed = Engine.fastForwardSpeed;
                         break;
-
                     case SDLK_F6:
                         if (Engine.masterPaused)
                             Engine.frameStep = true;
                         break;
-
                     case SDLK_F7:
                         if (Engine.devMenu)
                             Engine.masterPaused ^= 1;
@@ -182,13 +154,11 @@ bool processEvents()
                         if (Engine.devMenu)
                             Engine.gameSpeed = Engine.fastForwardSpeed;
                         break;
-
                     case SDLK_F11:
                     case SDLK_INSERT:
                         if (Engine.masterPaused)
                             Engine.frameStep = true;
                         break;
-
                     case SDLK_F12:
                     case SDLK_PAUSE:
                         if (Engine.devMenu)
@@ -225,9 +195,7 @@ void RetroEngine::Init()
 {
     CalculateTrigAngles();
     InitUserdata();
-#if RETRO_USE_MOD_LOADER
     initMods();
-#endif
     char dest[0x200];
 #if RETRO_PLATFORM == RETRO_UWP
     static char resourcePath[256] = { 0 };
@@ -269,17 +237,22 @@ void RetroEngine::Init()
 
 void RetroEngine::Run()
 {
-    unsigned long long targetFreq = SDL_GetPerformanceFrequency() / Engine.refreshRate;
-    unsigned long long curTicks   = 0;
-    
+    uint frameStart, frameEnd = SDL_GetTicks();
+    float frameDelta = 0.0f;
+
+#if RETRO_PLATFORM == RETRO_3DS
+    while (running && aptMainLoop()) {
+#else
     while (running) {
-#if !RETRO_USE_ORIGINAL_CODE
-        if (!vsync) {
-            if (SDL_GetPerformanceCounter() < curTicks + targetFreq)
-                continue;
-            curTicks = SDL_GetPerformanceCounter();
-        }
 #endif
+        frameStart = SDL_GetTicks();
+        frameDelta = frameStart - frameEnd;
+
+        if (frameDelta < 1000.0f / (float)refreshRate)
+            SDL_Delay(1000.0f / (float)refreshRate - frameDelta);
+
+        frameEnd = SDL_GetTicks();
+
         running = processEvents();
 
         for (int s = 0; s < gameSpeed; ++s) {
@@ -301,21 +274,20 @@ void RetroEngine::Run()
                     case ENGINE_EXITGAME: running = false; break;
                     default: break;
                 }
+
+                FlipScreen();
+                frameStep = false;
             }
         }
 
-        FlipScreen();
-        frameStep  = false;
     }
 
     ReleaseAudioDevice();
     ReleaseRenderDevice();
     writeSettings();
-#if RETRO_USE_MOD_LOADER
     saveMods();
-#endif
 
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+#if RETRO_USING_SDL2
     SDL_Quit();
 #endif
 }
@@ -427,17 +399,6 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
 
             }
         }
-
-#if !RETRO_USE_ORIGINAL_CODE
-        if (strlen(Engine.startSceneFolder) && strlen(Engine.startSceneID)) {
-            SceneInfo *scene = &stageList[STAGELIST_BONUS][0xFE]; // slot 0xFF is used for "none" startStage
-            strcpy(scene->name, "_RSDK_SCENE");
-            strcpy(scene->folder, Engine.startSceneFolder);
-            strcpy(scene->id, Engine.startSceneID);
-            startList_Game  = STAGELIST_BONUS;
-            startStage_Game = 0xFE;
-        }
-#endif
 
         CloseFile();
         return true;

@@ -24,7 +24,7 @@ int jumpTableDataOffset = 0;
 
 #define ALIAS_COUNT       (0x80)
 #if !RETRO_USE_ORIGINAL_CODE
-#define COMMONALIAS_COUNT (22)
+#define COMMONALIAS_COUNT (25)
 #else
 #define COMMONALIAS_COUNT (14)
 #endif
@@ -308,6 +308,7 @@ AliasInfo aliases[0x80] = { AliasInfo("true", "1"),
                             AliasInfo("C_PLATFORM", "2"),
 #if !RETRO_USE_ORIGINAL_CODE
     AliasInfo("INK_NONE", "0"),      AliasInfo("INK_BLEND", "1"),   AliasInfo("INK_TINT", "2"),
+    AliasInfo("FX_SCALE", "0"),      AliasInfo("FX_ROTATE", "1"),   AliasInfo("FX_INK", "2"),
     AliasInfo("FX_TINT", "3"),       AliasInfo("FLIP_NONE", "0"),   AliasInfo("FLIP_X", "1"),
     AliasInfo("FLIP_Y", "2"),        AliasInfo("FLIP_XY", "3"),
 #endif
@@ -889,41 +890,42 @@ void CheckCaseNumber(char *text)
     if (FindStringToken(text, "case", 1))
         return;
 
-    char caseString[128];
-    int caseStrPos = 0;
+    char dest[128];
+    int destStrPos = 0;
     char caseChar  = text[4];
     if (text[4]) {
-        int textPos = 5;
+        int textPos    = 5;
         do {
             if (caseChar != ':')
-                caseString[caseStrPos++] = caseChar;
+                dest[destStrPos++] = caseChar;
             caseChar = text[textPos++];
         } while (caseChar);
     }
     else {
-        caseStrPos = 0;
+        destStrPos = 0;
     }
-    caseString[caseStrPos] = 0;
+    dest[destStrPos] = 0;
+    int aliasVarID   = 0;
+    if (aliasCount) {
+        aliasVarID = 0;
+        do {
+            while (!StrComp(dest, aliases[aliasVarID].name)) {
+                if (aliasCount <= ++aliasVarID)
+                    goto CONV_VAL;
+            }
+            StrCopy(dest, aliases[aliasVarID++].value);
+        } while (aliasCount > aliasVarID);
+    }
 
-    for (int a = 0; a < aliasCount; ++a) {
-        if (StrComp(aliases[a].name, caseString)) {
-            StrCopy(caseString, aliases[a].value);
-            break;
-        }
-    }
-
-    int caseID = 0;
-    if (ConvertStringToInteger(caseString, &caseID)) {
-        int stackValue = jumpTableStack[jumpTableStackPos];
-        if (caseID < jumpTableData[stackValue])
-            jumpTableData[stackValue] = caseID;
-        stackValue++;
-        if (caseID > jumpTableData[stackValue])
-            jumpTableData[stackValue] = caseID;
-    }
-    else {
-        printLog("WARNING: unable to convert case string \"%s\" to int, on line %d", caseString, lineID);
-    }
+CONV_VAL:
+    if (ConvertStringToInteger(dest, &aliasVarID) != 1)
+        return;
+    int stackValue = jumpTableStack[jumpTableStackPos];
+    if (aliasVarID < jumpTableData[stackValue])
+        jumpTableData[stackValue] = aliasVarID;
+    stackValue++;
+    if (aliasVarID > jumpTableData[stackValue])
+        jumpTableData[stackValue] = aliasVarID;
 }
 bool ReadSwitchCase(char *text)
 {
@@ -1009,7 +1011,7 @@ bool ConvertStringToInteger(char *text, int *value)
     if (*text != '+' && !(*text >= '0' && *text <= '9') && *text != '-')
         return false;
     int strLength = StrLength(text) - 1;
-    uint charVal  = 0;
+    int charVal   = 0;
     if (*text == '-') {
         negative = true;
         charID   = 1;
@@ -1021,31 +1023,15 @@ bool ConvertStringToInteger(char *text, int *value)
     }
 
     if (text[charID] == '0') {
-        if (text[charID + 1] == 'x' || text[charID + 1] == 'X')
-            base = 0x10;
-        else if (text[charID + 1] == 'b' || text[charID + 1] == 'B')
-            base = 0b10;
-        else if (text[charID + 1] == 'o' || text[charID + 1] == 'O')
-            base = 0010; // base 8
-
-        if (base != 10) {
+        if (text[charID + 1] == 'x' || text[charID + 1] == 'X') {
             charID += 2;
             strLength -= 2;
+            base = 0x10;
         }
     }
 
     while (strLength > -1) {
-        bool flag = text[charID] < '0';
-        if (!flag) {
-            if (base == 0x10 && text[charID] > 'f')
-                flag = true;
-            if (base == 0010 && text[charID] > '7')
-                flag = true;
-            if (base == 0b10 && text[charID] > '1')
-                flag = true;
-        }
-
-        if (flag) {
+        if (text[charID] < '0' || text[charID] > (base == 10 ? '9' : (base == 0x10 ? 'F' : '1'))) {
             return 0;
         }
         if (strLength <= 0) {
@@ -1169,7 +1155,7 @@ void ParseScriptFile(char *scriptName, int scriptID)
                 FileRead(&curChar, 1);
                 if (readMode == READMODE_STRING) {
                     if (curChar == '\t' || curChar == '\r' || curChar == '\n' || curChar == ';' || readMode >= READMODE_COMMENTLINE) {
-                        if ((curChar == '\n' && prevChar != '\r') || (curChar == '\n' && prevChar == '\r') || curChar == ';') {
+                        if ((curChar == '\n' && prevChar != '\r') || (curChar == '\n' && prevChar == '\r')) {
                             readMode            = READMODE_ENDLINE;
                             scriptText[textPos] = 0;
                         }
@@ -1189,7 +1175,7 @@ void ParseScriptFile(char *scriptName, int scriptID)
                 }
                 else if (curChar == ' ' || curChar == '\t' || curChar == '\r' || curChar == '\n' || curChar == ';'
                          || readMode >= READMODE_COMMENTLINE) {
-                    if ((curChar == '\n' && prevChar != '\r') || (curChar == '\n' && prevChar == '\r') || curChar == ';') {
+                    if ((curChar == '\n' && prevChar != '\r') || (curChar == '\n' && prevChar == '\r')) {
                         readMode            = READMODE_ENDLINE;
                         scriptText[textPos] = 0;
                     }
@@ -1860,7 +1846,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
 
         ObjectScript *scriptInfo = &objectScriptList[objectEntityList[objectLoop].type];
         Entity *entity           = &objectEntityList[objectLoop];
-        Player *player           = &playerList[activePlayer];
+        //Player *player           = &playerList[activePlayer];
         SpriteFrame *spriteFrame = nullptr;
 
         // Functions
@@ -2111,27 +2097,20 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
             }
             case FUNC_DRAWACTNAME: {
                 opcodeSize = 0;
-                int charID = 0;
-
                 switch (scriptEng.operands[3]) {
                     default: break;
-
-                    case 1: // Draw Word 1
-                        charID = 0;
-
-                        // Draw the first letter as a capital letter, the rest are lowercase (if scriptEng.operands[4] is true, otherwise they're all
-                        // uppercase)
-                        if (scriptEng.operands[4] == 1 && titleCardText[charID] != 0) {
+                    case 1: {
+                        int charID = 0;
+                        if (scriptEng.operands[4] == 1 && titleCardText[charID]) {
                             int character = titleCardText[charID];
                             if (character == ' ')
                                 character = 0;
                             if (character == '-')
                                 character = 0;
-                            if (character >= '0' && character <= '9')
+                            if (character > '/' && character < ':')
                                 character -= 22;
                             if (character > '9' && character < 'f')
                                 character -= 'A';
-
                             if (character <= -1) {
                                 scriptEng.operands[1] += scriptEng.operands[5] + scriptEng.operands[6];
                             }
@@ -2142,11 +2121,9 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                                            spriteFrame->width, spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, scriptInfo->spriteSheetID);
                                 scriptEng.operands[1] += spriteFrame->width + scriptEng.operands[6];
                             }
-
                             scriptEng.operands[0] += 26;
                             charID++;
                         }
-
                         while (titleCardText[charID] != 0 && titleCardText[charID] != '-') {
                             int character = titleCardText[charID];
                             if (character == ' ')
@@ -2170,19 +2147,16 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                             charID++;
                         }
                         break;
-
-                    case 2: // Draw Word 2
-                        charID = titleCardWord2;
-
-                        // Draw the first letter as a capital letter, the rest are lowercase (if scriptEng.operands[4] is true, otherwise they're all
-                        // uppercase)
+                    }
+                    case 2: {
+                        int charID = titleCardWord2;
                         if (scriptEng.operands[4] == 1 && titleCardText[charID] != 0) {
                             int character = titleCardText[charID];
                             if (character == ' ')
                                 character = 0;
                             if (character == '-')
                                 character = 0;
-                            if (character >= '0' && character <= '9')
+                            if (character > '/' && character < ':')
                                 character -= 22;
                             if (character > '9' && character < 'f')
                                 character -= 'A';
@@ -2199,19 +2173,18 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                             scriptEng.operands[0] += 26;
                             charID++;
                         }
-
                         while (titleCardText[charID] != 0) {
                             int character = titleCardText[charID];
                             if (character == ' ')
                                 character = 0;
                             if (character == '-')
                                 character = 0;
-                            if (character >= '0' && character <= '9')
+                            if (character > '/' && character < ':')
                                 character -= 22;
                             if (character > '9' && character < 'f')
                                 character -= 'A';
                             if (character <= -1) {
-                                scriptEng.operands[1] += scriptEng.operands[5] + scriptEng.operands[6];
+                                scriptEng.operands[1] = scriptEng.operands[1] + scriptEng.operands[5] + scriptEng.operands[6];
                             }
                             else {
                                 character += scriptEng.operands[0];
@@ -2223,6 +2196,7 @@ void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
                             charID++;
                         }
                         break;
+                    }
                 }
                 break;
             }

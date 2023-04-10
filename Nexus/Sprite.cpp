@@ -75,7 +75,7 @@ void ReadGifLine(byte *line, int length, int offset)
     while (i < length) {
         int gifCode = ReadGifCode();
         if (gifCode == eofCode) {
-            if (i != length - 1 | gifDecoder.pixelCount != 0u) {
+            if ((i != length - 1) | (gifDecoder.pixelCount != 0u)) {
                 return;
             }
             i++;
@@ -97,7 +97,7 @@ void ReadGifLine(byte *line, int length, int offset)
                     i++;
                 }
                 else {
-                    if (gifCode<0 | gifCode> LZ_MAX_CODE) {
+                    if ((gifCode<0) | (gifCode> LZ_MAX_CODE)) {
                         return;
                     }
                     int code;
@@ -117,7 +117,7 @@ void ReadGifLine(byte *line, int length, int offset)
                         gifDecoder.stack[stackPtr++] = gifDecoder.suffix[code];
                         code                    = gifDecoder.prefix[code];
                     }
-                    if (c >= LZ_MAX_CODE | code > LZ_MAX_CODE) {
+                    if ((c >= LZ_MAX_CODE) | (code > LZ_MAX_CODE)) {
                         return;
                     }
                     gifDecoder.stack[stackPtr++] = (byte)code;
@@ -126,7 +126,7 @@ void ReadGifLine(byte *line, int length, int offset)
                     }
                 }
                 if (prevCode != NO_SUCH_CODE) {
-                    if (gifDecoder.runningCode<2 | gifDecoder.runningCode> FIRST_CODE) {
+                    if ((gifDecoder.runningCode<2) | (gifDecoder.runningCode> FIRST_CODE)) {
                         return;
                     }
                     gifDecoder.prefix[gifDecoder.runningCode - 2] = prevCode;
@@ -325,8 +325,8 @@ int LoadGIFFile(const char *filePath, byte sheetID)
         surface->height += (fileBuffer << 8);
 
         FileRead(&fileBuffer, 1); // Palette Size
-        int has_pallete = (fileBuffer & 0x80) >> 7;
-        int colors = ((fileBuffer & 0x70) >> 4) + 1;
+        //int has_pallete = (fileBuffer & 0x80) >> 7;
+        //int colors = ((fileBuffer & 0x70) >> 4) + 1;
         int palette_size = (fileBuffer & 0x7) + 1;
         if (palette_size > 0)
             palette_size = 1 << palette_size;

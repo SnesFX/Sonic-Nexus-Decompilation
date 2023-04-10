@@ -28,6 +28,11 @@ Without assets from the game, this decompilation will not run. You can download 
   * The `CXXFLAGS` option can be removed if you do not want optimizations.
   * -j switch is optional, but will make building faster by running it parallel on multiple cores (8 cores would be -j9.)
 
+## Nintendo 3DS
+* Set up a working 3DS Homebrew Environment. You can find more information on this [here](https://www.3dbrew.org/wiki/Setting_up_Development_Environment).
+* Look in the github workflow for the dependencies.
+* Run `make 3dsx` for a .3dsx (homebrew) file. Run `make cia` to build a `.cia` file.
+
 ## Unofficial Branches
 Follow the installation instructions in the readme of each branch.
 * For the **Nintendo Switch**, go to [LittlePlanetCD's fork](https://github.com/LittlePlanetCD/Sonic-Nexus-Switch).

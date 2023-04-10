@@ -9,9 +9,9 @@ inline void printLog(const char *msg, ...)
         // make the full string
         va_list args;
         va_start(args, msg);
-        vsprintf(buffer, msg, args);
+        vsnprintf(buffer, 0x100, msg, args);
         printf("%s\n", buffer);
-        sprintf(buffer, "%s\n", buffer);
+        //sprintf(buffer, "%s\n", buffer);
 
         char pathBuffer[0x100];
 #if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_UWP
@@ -25,6 +25,7 @@ inline void printLog(const char *msg, ...)
         FileIO *file = fOpen(pathBuffer, "a");
         if (file) {
             fWrite(&buffer, 1, StrLength(buffer), file);
+	    fWrite("\n", 1, 1, file);
             fClose(file);
         }
     }

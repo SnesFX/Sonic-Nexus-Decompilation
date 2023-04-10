@@ -43,7 +43,6 @@ struct FileInfo {
     int virtualFileOffset;
 #if !RETRO_USE_ORIGINAL_CODE
     bool encrypted;
-    byte *fileBuffer;
     FileIO *cFileHandle;
     byte isMod;
 #endif
@@ -66,7 +65,7 @@ extern FileIO *cFileHandle;
 inline void CopyFilePath(char *dest, const char *src)
 {
     strcpy(dest, src);
-    for (int i = 0;; ++i) {
+    for (uint i = 0;; ++i) {
         if (i >= strlen(dest)) {
             break;
         }
@@ -123,15 +122,15 @@ bool ReachedEndOfFile();
  // For Music Streaming
 bool LoadFile2(const char *filePath, FileInfo *fileInfo);
 bool ParseVirtualFileSystem2(FileInfo *fileInfo);
-size_t FileRead2(FileInfo *info, void *dest, int size, bool fromBuffer);
+size_t FileRead2(FileInfo *info, void *dest, int size);
 inline bool CloseFile2(FileInfo *info)
 {
-    if (info->fileBuffer)
-        free(info->fileBuffer);
+    int result = 0;
+    if (info->cFileHandle)
+        result = fClose(info->cFileHandle);
 
     info->cFileHandle = NULL;
-    info->fileBuffer  = NULL;
-    return true;
+    return result;
 }
 size_t GetFilePosition2(FileInfo *info);
 void SetFilePosition2(FileInfo *info, int newPos);
